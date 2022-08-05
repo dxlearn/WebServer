@@ -45,3 +45,12 @@ void addfd(int epollfd,int fd, bool one_shot)
     epoll_ctl(epollfd,EPOLL_CTL_ADD,fd,&event);
     setnonblocking(fd);
 }
+
+
+
+void reset_oneshot(int epollfd,int fd){//重置事件
+    epoll_event event;
+    event.data.fd=fd;
+    event.events=EPOLLIN|EPOLLET|EPOLLONESHOT;
+    epoll_ctl(epollfd,EPOLL_CTL_MOD,fd,&event);
+}

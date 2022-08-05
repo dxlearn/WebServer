@@ -16,6 +16,7 @@
 
 
 extern int addfd(int epollfd, int fd, bool one_shot);
+extern void reset_oneshot(int epollfd,int fd);
 
 int main(int argc,char *argv[])
 {
@@ -66,13 +67,14 @@ int main(int argc,char *argv[])
                 struct sockaddr_in client_address;
                 socklen_t client_addrlen = sizeof(client_address);
                 int connfd = accept(listenfd,(struct sockaddr *)&client_address,&client_addrlen);
-                addfd(epollfd, connfd, false);
+                addfd(epollfd, connfd, true);
             }
             else if(events[i].events & (EPOLLIN))
             {
                 sockfd = events[i].data.fd;
                 int n = read(sockfd,buf,sizeof(buf));
                 write(STDOUT_FILENO,buf,n);
+                reset_oneshot(epollfd,sockfd); 
             }
         }
     }

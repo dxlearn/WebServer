@@ -19,7 +19,7 @@ public:
     util_timer():prev(NULL),next(NULL){};
 public:
     time_t expire;
-    void (*cd_func)(client_data *);
+    void (*cb_func)(client_data *);
     client_data *user_data;
     util_timer *prev;
     util_timer *next;
@@ -62,6 +62,55 @@ public:
         }
         add_timer(timer,head);
     }
+    void tick()
+    {
+       if(!head)
+       {
+           return;
+       }
+      time_t cur = time(NULL);
+      util_timer *tmp = head;
+      while(tmp)
+      {
+          if(cur < tmp->expire )
+          {
+              break;
+          }
+          tmp->cb_func(tmp->user_data);
+          head = tmp->next;
+          if(head)
+          {
+              head->prev = NULL;
+          }
+          delete tmp;
+          tmp = head;
+      }       
+    }
+    void adjust_timer(util_timer *timer)
+    {
+        if(!timer)
+        {
+            return;
+        }
+        util_timer *tmp = timer->next;
+        if(!tmp || (timer->expire < tmp->expire))
+        {
+            return;
+        }
+        if(timer == head)
+        {
+            head = head->next;
+            head->prev = NULL;
+            timer->next = NULL;
+            add_timer(timer,head);
+        }
+        else{
+            timer->prev->next = timer->next;
+            timer->next->prev = timer->prev;
+            add_timer(timer,timer->next);
+        }
+
+    }
 
 
 private:
@@ -91,31 +140,6 @@ private:
             timer->next = NULL;
             tail = timer;
         }
-    }
-    void adjust_timer(util_timer *timer)
-    {
-        if(!timer)
-        {
-            return;
-        }
-        util_timer *tmp = timer->next;
-        if(!tmp || (timer->expire < tmp->expire))
-        {
-            return;
-        }
-        if(timer == head)
-        {
-            head = head->next;
-            head->prev = NULL;
-            timer->next = NULL;
-            add_timer(timer,head);
-        }
-        else{
-            timer->prev->next = timer->next;
-            timer->next->prev = timer->prev;
-            add_timer(timer,timer->next);
-        }
-
     }
     void del_timer(util_timer *timer)
     {
@@ -147,30 +171,6 @@ private:
         timer->prev->next = timer->next;
         timer->next->prev = timer->prev;
         delete timer;
-    }
-    void tick()
-    {
-       if(!head)
-       {
-           return;
-       }
-      time_t cur = time(NULL);
-      util_timer *tmp = head;
-      while(tmp)
-      {
-          if(cur < tmp->expire )
-          {
-              break;
-          }
-          tmp->cd_func(tmp->user_data);
-          head = tmp->next;
-          if(head)
-          {
-              head->prev = NULL;
-          }
-          delete tmp;
-          tmp = head;
-      }       
     }
 
 private:

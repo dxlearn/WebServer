@@ -32,11 +32,41 @@ public:
     }
     bool post()
     {
-        return sem_post(&m_set) == 0;
+        return sem_post(&m_sem) == 0;
     }
     
 private:
     sem_t m_sem;
+};
+
+class locker
+{
+public:
+    locker()
+    {
+        if(pthread_mutex_init(&m_mutex,NULL) != 0)
+        {
+            throw std::exception();
+        }
+    }
+    ~locker()
+    {
+        pthread_mutex_destroy(&m_mutex);
+    }
+    bool lock()
+    {
+        return pthread_mutex_lock(&m_mutex) == 0;
+    }
+    bool unlock()
+    {
+        return pthread_mutex_unlock(&m_mutex) ==0;
+    }
+    pthread_mutex_t *get()
+    {
+        return &m_mutex;
+    }
+private:
+    pthread_mutex_t m_mutex;
 };
 
 //https://blog.csdn.net/duan_jin_hui/article/details/68483298
@@ -52,7 +82,7 @@ public:
     }
     ~cond()
     {
-        pthread_cond_destory(&m_cond);
+        pthread_cond_destroy(&m_cond);
     }
     bool wait(pthread_mutex_t *m_mutex)
     {
@@ -60,7 +90,7 @@ public:
         ret = pthread_cond_wait(&m_cond,m_mutex); //解锁mutex，并等待cond改变,条件满足后再加锁
         return ret == 0;
     }
-    bool timewait(pthread_mutxt_t *mutex,struct timespec t)
+    bool timewait(pthread_mutex_t *m_mutex,struct timespec t)
     {
         int ret = 0;
         ret = pthread_cond_timedwait(&m_cond,m_mutex,&t);//用于等待一个条件变量，等待条件变量的同时可恶意设置等待超时

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class connection_poll
+class connection_pool
 {
 public:
     MYSQL *GetConnection(); 
@@ -20,12 +20,12 @@ public:
     int GetFreeConn();
     void DestoryPoll();
     //静态成员函数：http://c.biancheng.net/view/2228.html
-    static connection_poll *GetInstance();
+    static connection_pool *GetInstance();
 
     void init(string url,string User,string PassWord,string DataBaseName,int Port,unsigned int MaxConn);
 
-    connection_poll();
-    ~connection_poll();
+    connection_pool();
+    ~connection_pool();
 
 private:
     unsigned int MaxConn;
@@ -47,11 +47,11 @@ private:
 class connectionRAII
 {
 public:
-    connectionRAII(MYSQL **con,connection_poll *connPool);
+    connectionRAII(MYSQL **con,connection_pool *connPool);
     ~connectionRAII();
 
 private:
     MYSQL *conRAII;
-    connection_poll *pollRAII;
+    connection_pool *poolRAII;
 };
 #endif

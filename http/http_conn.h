@@ -1,5 +1,5 @@
-#ifndef HTTPCONN
-#define HTTPCONN
+#ifndef HTTPCONNECTION_H
+#define HTTPCONNECTION_H
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -19,10 +19,8 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <sys/uio.h>
-
 #include "../lock/locker.h"
 #include "../Webmysql/sql_connection_pool.h"
-
 class http_conn
 {
 public:
@@ -43,7 +41,7 @@ public:
     };
     enum CHECK_STATE
     {
-        CHECK_STATE_REQUSTLINE = 0,
+        CHECK_STATE_REQUESTLINE = 0,
         CHECK_STATE_HEADER,
         CHECK_STATE_CONTENT
     };
@@ -52,7 +50,8 @@ public:
         NO_REQUEST,
         GET_REQUEST,
         BAD_REQUEST,
-        NO_RESOURSE,
+        NO_RESOURCE,
+        FORBIDDEN_REQUEST,
         FILE_REQUEST,
         INTERNAL_ERROR,
         CLOSED_CONNECTION
@@ -63,12 +62,13 @@ public:
         LINE_BAD,
         LINE_OPEN
     };
+
 public:
     http_conn() {}
     ~http_conn() {}
 
 public:
-    void init(int sockfd,const sockaddr_in &addr);
+    void init(int sockfd, const sockaddr_in &addr);
     void close_conn(bool real_close = true);
     void process();
     bool read_once();
@@ -78,6 +78,7 @@ public:
         return &m_address;
     }
     void initmysql_result(connection_pool *connPool);
+
 private:
     void init();
     HTTP_CODE process_read();
@@ -129,4 +130,5 @@ private:
     int bytes_to_send;
     int bytes_have_send;
 };
-#endif 
+
+#endif

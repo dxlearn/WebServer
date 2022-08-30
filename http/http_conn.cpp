@@ -733,9 +733,3 @@ void http_conn::process()
 }
 
 
-// void reset_oneshot(int epollfd,int fd){//重置事件
-//     epoll_event event;
-//     event.data.fd=fd;
-//     event.events=EPOLLIN|EPOLLET|EPOLLONESHOT;
-//     epoll_ctl(epollfd,EPOLL_CTL_MOD,fd,&event);
-// }

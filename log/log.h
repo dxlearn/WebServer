@@ -55,4 +55,5 @@ private:
     bool m_is_async;
     locker m_mutex;
 };
+
 #endif

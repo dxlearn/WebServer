@@ -13,7 +13,6 @@
 using namespace std;
 
 
-
 template <class T>
 class block_queue
 {
@@ -93,6 +92,7 @@ public:
             return false;
         }
         value = m_array[m_back];
+        m_mutex.unlock();
         return true;
     }
     int size()
@@ -154,6 +154,36 @@ public:
         m_mutex.unlock();
         return true;
     }
+    
+    //增加超时处理
+    bool pop(T &item,int ms_timeout)
+    {
+        struct timespec t = {0,0};
+        struct timeval now = {0,0};
+        gettimeofday(&now,NULL);
+        if(m_size <= 0)
+        {
+            t.tv_sec = now.tv_sec + ms_timeout /1000;
+            t.tv_nsec = (ms_timeout %1000)*1000;
+            if(!m_cond.timewait(m_mutex.get(),t))
+            {
+                m_mutex.unlock();
+                return false;
+            }
+        }
+        if(m_size <= 0)
+        {
+            m_mutex.unlock();
+            return false;
+        }
+
+        m_front = (m_front + 1) % m_max_size;
+        item = m_array[m_front];
+        m_size--;
+        m_mutex.unlock();
+        return true;
+    }
+
 private:
     locker m_mutex;
     cond m_cond;
@@ -164,8 +194,4 @@ private:
     int m_front;
     int m_back;
 };
-
-
-
-
 #endif 

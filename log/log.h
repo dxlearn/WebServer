@@ -37,7 +37,7 @@ private:
         //从阻塞队列中取出一个日志string,写入文件
         while(m_log_queue->pop(single_log))
         {
-            m_mutex.lock();
+            m_mutex.lock();     
             fputs(single_log.c_str(),m_fp);
             m_mutex.unlock();
         }
@@ -59,5 +59,5 @@ private:
 #define LOG_DEBUG(format, ...) Log::get_instance()->write_log(0,format,##__VA_ARGS__)
 #define LOG_INFO(format, ...) Log::get_instance()->write_log(1,format,##__VA_ARGS__)
 #define LOG_WARN(format, ...) Log::get_instance()->write_log(2,format,##__VA_ARGS__)
-#define LOG_ERROR(format, ...) Log::get_instance()->write_log(3,format,##VA_ARGS__)
+#define LOG_ERROR(format, ...) Log::get_instance()->write_log(3,format,##__VA_ARGS__)
 #endif

@@ -44,7 +44,6 @@ public:
         if(m_array != NULL)
             delete [] m_array;
         m_mutex.unlock();
-        return false;
     }
     //判断队列是否满
     bool full()
